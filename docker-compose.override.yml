@@ -1,0 +1,60 @@
+version: '3.4'
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    depends_on:
+      - voting.grafana
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus-config.yml"
+
+  grafana:
+    image: grafana/grafana:latest
+    depends_on: 
+      - prometheus
+      - loki
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana:/var/lib/grafana
+
+  loki:
+    image: grafana/loki:2.8.0
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/loki-config.yaml
+    volumes:
+      - ./loki:/etc/loki
+      - ./loki_data:/loki
+    user: "root"
+
+  promtail:
+    image: grafana/promtail:2.8.0
+    depends_on:
+      - loki
+    command:
+      - -config.file=/etc/promtail/promtail-config.yaml
+    volumes:
+      - ./promtail:/etc/promtail
+      - /var/log:/var/log
+
+  voting.grafana:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://*:8080
+      #- ASPNETCORE_HTTP_PORTS=8080
+      #- ASPNETCORE_HTTPS_PORTS=8081
+    ports:
+      - "8080:8080"
+      #- "8080"
+      #- "8081"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro

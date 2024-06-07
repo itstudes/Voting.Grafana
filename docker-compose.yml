@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  voting.grafana:
+    image: ${DOCKER_REGISTRY-}votinggrafana
+    build:
+      context: .
+      dockerfile: Voting.Grafana/Dockerfile
