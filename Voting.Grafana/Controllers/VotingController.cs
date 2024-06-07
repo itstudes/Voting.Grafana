@@ -7,14 +7,17 @@ namespace Voting.Grafana.Controllers;
 public class VotingController : ControllerBase
 {
     private readonly ILogger<VotingRoundManagementController> _logger;
+    private readonly AppInstrumentation _appInstrumentation;
     private readonly VotingRoundManagementService _votingRoundManagementService;
     private readonly RegisteredPartiesService _registeredPartiesService;
 
     public VotingController(ILogger<VotingRoundManagementController> logger,
+                            AppInstrumentation appInstrumentation,
                             VotingRoundManagementService votingRoundManagementService,
                             RegisteredPartiesService registeredPartiesService)
     {
         _logger = logger;
+        _appInstrumentation = appInstrumentation;
         _votingRoundManagementService = votingRoundManagementService;
         _registeredPartiesService = registeredPartiesService;
     }
@@ -22,6 +25,7 @@ public class VotingController : ControllerBase
     [HttpPost]
     public IActionResult Vote(VoteRequest voteRequest)
     {
+        using var _ = _appInstrumentation.MeasureVoteDuration_ms();
         try
         {
             //checks

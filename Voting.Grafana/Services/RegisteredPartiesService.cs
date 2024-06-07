@@ -90,6 +90,9 @@ public sealed class RegisteredPartiesService
                 new() {PartyCode = "ALJAMA", ForecastPercentage = 0.5},
                 new() {PartyCode = "CCC", ForecastPercentage = 0.5}
             ];
+
+        //log that the political parties and performance forecasts have been seeded
+        Log.Information("Political parties and performance forecasts seeded successfully.");
     }
 
 

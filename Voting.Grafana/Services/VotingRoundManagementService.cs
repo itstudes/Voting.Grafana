@@ -1,4 +1,6 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
 
 namespace Voting.Grafana.Services;
 
@@ -7,7 +9,14 @@ namespace Voting.Grafana.Services;
 /// </summary>
 public class VotingRoundManagementService
 {
+    //diagnostics
+    private readonly ActivitySource _activitySource;
+    private readonly Counter<long> _votesCounter;
+
+    //other services
     private readonly RegisteredPartiesService _registeredPartiesService;
+
+    //data
     private VotingRound? _currentVotingRound = null;
     private ConcurrentDictionary<string, VoteSubmission> _currentVotes = [];
     private Dictionary<VotingRound, List<VoteSubmission>> _archive = [];
@@ -22,9 +31,14 @@ public class VotingRoundManagementService
 
     #region Constructors
 
-    public VotingRoundManagementService(RegisteredPartiesService registeredPartiesService)
+    public VotingRoundManagementService(RegisteredPartiesService registeredPartiesService, 
+                                        AppInstrumentation appInstrumentation)
     {
         _registeredPartiesService = registeredPartiesService;
+
+        //metrics
+        _activitySource = appInstrumentation.ActivitySource;
+        _votesCounter = appInstrumentation.VotesTotalCounter;
     }
 
     #endregion Constructors
@@ -179,10 +193,23 @@ public class VotingRoundManagementService
         return true;
     }
 
-    public void SubmitVote(VoteSubmission vote) =>
+    public void SubmitVote(VoteSubmission vote)
+    {
         _currentVotes.AddOrUpdate(key: $"{vote.VoterIdNumber}[{GetStringFromVoteCategory(vote.Category).ToUpper()}]",
                                   addValue: vote,
                                   updateValueFactory: (key, oldValue) => vote);
+
+        //add to the counter, for metrics
+        //tag with: 
+        //- VotingRoundId,
+        //- PoliticalPartyCode,
+        //- Category
+        _votesCounter.Add(delta: 1,
+                          tag1: new KeyValuePair<string, object?>("VotingRoundId", vote.VotingRoundId),
+                          tag2: new KeyValuePair<string, object?>("PoliticalPartyCode", vote.PoliticalPartyCode),
+                          tag3: new KeyValuePair<string, object?>("Category", GetStringFromVoteCategory(vote.Category)));
+    }
+        
 
     #endregion Public Functions
 

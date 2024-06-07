@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace Voting.Grafana.Controllers;
 
@@ -8,11 +9,14 @@ public class VotingRoundManagementController : ControllerBase
 {
     private readonly ILogger<VotingRoundManagementController> _logger;
     private readonly VotingRoundManagementService _votingRoundManagementService;
+    private readonly ActivitySource _activitySource;
 
     public VotingRoundManagementController(ILogger<VotingRoundManagementController> logger,
+                                           AppInstrumentation appInstrumentation,
                                            VotingRoundManagementService votingRoundManagementService)
     {
         _logger = logger;
+        _activitySource = appInstrumentation.ActivitySource;
         _votingRoundManagementService = votingRoundManagementService;
     }
 
@@ -40,9 +44,10 @@ public class VotingRoundManagementController : ControllerBase
     [HttpGet("statistics")]
     public IActionResult GetVotingRoundStatistics()
     {
+        using var activity = _activitySource.StartActivity("VotingRoundManagementController.GetVotingRoundStatistics");
         try
         {
-            if ( _votingRoundManagementService.CanVote(out var results) )
+            if (_votingRoundManagementService.CanVote(out var results))
             {
                 //get statistics
                 var currentVotingRound = _votingRoundManagementService.CurrentVotingRound;
@@ -57,6 +62,9 @@ public class VotingRoundManagementController : ControllerBase
                     ExpectedNumberOfVoters = currentVotingRound.ExpectedNumberOfVoters,
                     NumberOfVotes = numberOfVotes
                 };
+
+                //set success status
+                activity?.SetStatus(ActivityStatusCode.Ok);
                 return Ok(statisticsData);
             }
             else
@@ -69,15 +77,21 @@ public class VotingRoundManagementController : ControllerBase
                 return StatusCode(StatusCodes.Status405MethodNotAllowed, votingRoundStatus);
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
+            //log the exception
+            _logger.LogError(ex, "An exception occurred while getting voting round statistics.");
+
+            //set failure activity status
+            activity?.SetStatus(ActivityStatusCode.Error);
+         
+            //return HTTP 500 error
             var exceptionModel = new InternalExceptionWebModel
             {
                 Code = ex.HResult.ToString(),
                 ExceptionType = ex.GetType().Name,
                 Message = ex.Message
             };
-            //return HTTP 500 error
             return StatusCode(StatusCodes.Status500InternalServerError, exceptionModel);
         }
     }
@@ -85,20 +99,28 @@ public class VotingRoundManagementController : ControllerBase
     [HttpGet("archive")]
     public IActionResult GetVotingRoundArchive()
     {
+        using var activity = _activitySource.StartActivity("VotingRoundManagementController.GetVotingRoundArchive");
         try
         {
             var archiveData = _votingRoundManagementService.GetArchiveData();
+            activity?.SetStatus(ActivityStatusCode.Ok);
             return Ok(archiveData);
         }
         catch ( Exception ex )
         {
+            //log the exception
+            _logger.LogError(ex, "An exception occurred while getting voting round archive data.");
+
+            //set failure activity status
+            activity?.SetStatus(ActivityStatusCode.Error);
+         
+            //return HTTP 500 error
             var exceptionModel = new InternalExceptionWebModel
             {
                 Code = ex.HResult.ToString(),
                 ExceptionType = ex.GetType().Name,
                 Message = ex.Message
-            };
-            //return HTTP 500 error
+            };            
             return StatusCode(StatusCodes.Status500InternalServerError, exceptionModel);
         }
     }
@@ -106,6 +128,7 @@ public class VotingRoundManagementController : ControllerBase
     [HttpPost("new-round")]
     public IActionResult CreateNewVotingRound([FromBody] NewVotingRoundWebModel newVotingRound)
     {
+        using var activity = _activitySource.StartActivity("VotingRoundManagementController.CreateNewVotingRound");
         try
         {
             var newRoundData = _votingRoundManagementService.StartVotingRound(newVotingRound.VotingYear,
@@ -115,13 +138,19 @@ public class VotingRoundManagementController : ControllerBase
         }
         catch ( Exception ex )
         {
+            //log the exception
+            _logger.LogError(ex, "An exception occurred while creating a new voting round.");
+
+            //set failure activity status
+            activity?.SetStatus(ActivityStatusCode.Error);
+
+            //return HTTP 500 error
             var exceptionModel = new InternalExceptionWebModel
             {
                 Code = ex.HResult.ToString(),
                 ExceptionType = ex.GetType().Name,
                 Message = ex.Message
-            };
-            //return HTTP 500 error
+            };            
             return StatusCode(StatusCodes.Status500InternalServerError, exceptionModel);
         }
     }
@@ -129,6 +158,7 @@ public class VotingRoundManagementController : ControllerBase
     [HttpGet("end-round")]
     public IActionResult EndVotingRound()
     {
+        using var activity = _activitySource.StartActivity("VotingRoundManagementController.EndVotingRound");
         try
         {
             var returnData = _votingRoundManagementService.EndCurrentVotingRound();
@@ -136,13 +166,19 @@ public class VotingRoundManagementController : ControllerBase
         }
         catch ( Exception ex )
         {
+            //log the exception
+            _logger.LogError(ex, "An exception occurred while ending the current voting round.");
+
+            //set failure activity status
+            activity?.SetStatus(ActivityStatusCode.Error);
+
+            //return HTTP 500 error
             var exceptionModel = new InternalExceptionWebModel
             {
                 Code = ex.HResult.ToString(),
                 ExceptionType = ex.GetType().Name,
                 Message = ex.Message
             };
-            //return HTTP 500 error
             return StatusCode(StatusCodes.Status500InternalServerError, exceptionModel);
         }
     }
