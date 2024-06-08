@@ -58,3 +58,10 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+  # k6:
+  #   image: loadimpact/k6:latest
+  #   volumes:
+  #     - ./k6:/scripts
+  #   command: run /scripts/test.js
+  #   depends_on:
+  #     - voting.grafana
