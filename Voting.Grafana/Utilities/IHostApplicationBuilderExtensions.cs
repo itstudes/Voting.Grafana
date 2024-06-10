@@ -86,8 +86,8 @@ public static class IHostApplicationBuilderExtensions
         if (builder.Environment.IsDevelopment())
         {
             builder.Services.Configure<OpenTelemetryLoggerOptions>(options => options.AddConsoleExporter());
-            builder.Services.ConfigureOpenTelemetryMeterProvider(options => options.AddConsoleExporter());
-            builder.Services.ConfigureOpenTelemetryTracerProvider(options => options.AddConsoleExporter());
+            //builder.Services.ConfigureOpenTelemetryMeterProvider(options => options.AddConsoleExporter());
+            //builder.Services.ConfigureOpenTelemetryTracerProvider(options => options.AddConsoleExporter());
         }
 
         //prometheus exporter for metrics

@@ -28,14 +28,16 @@ public class VotingRoundManagementController : ControllerBase
         {
             votingRoundStatus = new VotingRoundCurrentStatusWebModel
             {
-                Status = "Voting is open"
+                VotingEnabled = true,
+                StatusString = "Voting is open"
             };
         }
         else
         {
             votingRoundStatus = new VotingRoundCurrentStatusWebModel
             {
-                Status = results
+                VotingEnabled = false,
+                StatusString = results
             };
         }
         return Ok(votingRoundStatus);
@@ -71,7 +73,7 @@ public class VotingRoundManagementController : ControllerBase
             {
                 var votingRoundStatus = new VotingRoundCurrentStatusWebModel
                 {
-                    Status = results
+                    StatusString = results
                 };
                 //return HTTP 405 error
                 return StatusCode(StatusCodes.Status405MethodNotAllowed, votingRoundStatus);

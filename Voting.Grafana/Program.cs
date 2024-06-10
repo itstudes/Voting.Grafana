@@ -25,6 +25,9 @@ public class Program
             builder.Services.AddSingleton<RegisteredPartiesService>();
             builder.Services.AddSingleton<VotingRoundManagementService>();
 
+            //add k6 test manager
+            builder.Services.AddSingleton<K6TestManager>();
+
             //add asp.net core services to the container
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();

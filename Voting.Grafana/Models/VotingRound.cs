@@ -42,7 +42,8 @@ public sealed class NewVotingRoundWebModel
 /// </summary>
 public sealed class VotingRoundCurrentStatusWebModel
 {
-    public string Status { get; set; } = string.Empty;
+    public bool VotingEnabled { get; set; }
+    public string StatusString { get; set; } = string.Empty;
 }
 
 /// <summary>
