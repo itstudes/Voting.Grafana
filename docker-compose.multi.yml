@@ -1,10 +1,13 @@
 version: '3.4'
 
+# TO TEST RUN: docker-compose -f docker-compose.yml -f docker-compose.multi.yml up --build
+
 services:
   prometheus:
     image: prom/prometheus:latest
     depends_on:
-      - voting.grafana
+      - voting-api-01
+      - voting-api-02
     ports:
       - "9090:9090"
     volumes:
@@ -51,24 +54,41 @@ services:
       - ./promtail:/etc/promtail
       - /var/log:/var/log
 
-  voting.grafana:
+  voting-api-01:
+    image: ${DOCKER_REGISTRY-}votinggrafana
+    build:
+      context: .
+      dockerfile: Voting.Grafana/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://*:8080
-      - OTEL_RESOURCE_ATTRIBUTES=service.name=voting-grafana-api,service.namespace=Voting.Grafana,service.version=1.0,host.name=`HOSTNAME`
-      #- ASPNETCORE_HTTP_PORTS=8080
-      #- ASPNETCORE_HTTPS_PORTS=8081
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=voting-grafana-api-01,service.namespace=Voting.Grafana,service.version=1.0,host.name=`HOSTNAME`
     ports:
       - "8080:8080"
-      #- "8080"
-      #- "8081"
     depends_on:
       loki:
         condition: service_healthy
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      # - /var/run/docker.sock:/var/run/docker.sock
+ 
+  voting-api-02:
+    image: ${DOCKER_REGISTRY-}votinggrafana
+    build:
+      context: .
+      dockerfile: Voting.Grafana/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://*:8081
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=voting-grafana-api-02,service.namespace=Voting.Grafana,service.version=1.0,host.name=`HOSTNAME`
+    ports:
+      - "8081:8081"
+    depends_on:
+      loki:
+        condition: service_healthy
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
 
   k6:
     image: loadimpact/k6:latest
@@ -76,6 +96,8 @@ services:
       - ./k6/tests:/scripts
     entrypoint: tail -f /dev/null
     links:
-      - voting.grafana
+      - voting-api-01
+      - voting-api-02
     depends_on:
-      - voting.grafana
+      - voting-api-01
+      - voting-api-02

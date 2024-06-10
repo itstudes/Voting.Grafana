@@ -10,6 +10,7 @@
     <DockerServiceName>voting.grafana</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="docker-compose.multi.yml" />
     <None Include="docker-compose.override.yml">
       <DependentUpon>docker-compose.yml</DependentUpon>
     </None>

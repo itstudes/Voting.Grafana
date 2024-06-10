@@ -17,6 +17,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "k6Tests", "k6Tests", "{1246A995-1AB7-4BB0-89BB-431FE99DD514}"
 	ProjectSection(SolutionItems) = preProject
 		k6\tests\vote-test-01.js = k6\tests\vote-test-01.js
+		k6\tests\vote-test-multi.js = k6\tests\vote-test-multi.js
 	EndProjectSection
 EndProject
 Global
