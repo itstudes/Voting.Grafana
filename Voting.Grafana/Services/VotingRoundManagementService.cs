@@ -15,7 +15,6 @@ public class VotingRoundManagementService
 
     //other services
     private readonly RegisteredPartiesService _registeredPartiesService;
-    private readonly ILogger<VotingRoundManagementService> _logger;
 
     //data
     private VotingRound? _currentVotingRound = null;
@@ -32,11 +31,9 @@ public class VotingRoundManagementService
 
     #region Constructors
 
-    public VotingRoundManagementService(ILogger<VotingRoundManagementService> logger,
-                                        RegisteredPartiesService registeredPartiesService, 
+    public VotingRoundManagementService(RegisteredPartiesService registeredPartiesService, 
                                         AppInstrumentation appInstrumentation)
     {
-        _logger = logger;
         _registeredPartiesService = registeredPartiesService;
 
         //metrics
@@ -104,7 +101,7 @@ public class VotingRoundManagementService
         //check if a voting round is already in progress
         if ( _currentVotingRound is not null )
         {
-            _logger.LogWarning("A voting round is already in progress (votingRoundId = {votingRoundId}). End that voting round first before trying to start a new one.", _currentVotingRound.Id);
+            Log.Warning("A voting round is already in progress (votingRoundId = {votingRoundId}). End that voting round first before trying to start a new one.", _currentVotingRound.Id);
             return _currentVotingRound;
         }
         //check if the year is valid

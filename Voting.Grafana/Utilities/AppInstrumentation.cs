@@ -15,7 +15,6 @@ public class AppInstrumentation : IDisposable
     private const string VOTES_TOTAL_METRIC_NAME = "votes.total";
     private const string VOTES_DURATION_METRIC_NAME = "votes.duration";
 
-    private readonly ILogger<AppInstrumentation> _logger;
     private readonly Meter _meter;
     private Dictionary<string, string> _openTelemetryResourceAttributes = new();
 
@@ -31,12 +30,11 @@ public class AppInstrumentation : IDisposable
 
     #region Constructors
 
-    public AppInstrumentation(ILogger<AppInstrumentation> logger)
+    public AppInstrumentation()
     {
-        _logger = logger;
-
         //set the resource attributes
-        GetOpenTelemetryResourceAttributesFromEnvironment();
+        _openTelemetryResourceAttributes = OpenTelemetryUtilities.GetOpenTelemetryResourceAttributesFromEnvironment();
+        OpenTelemetryResourceAttributes = new ReadOnlyDictionary<string, string>(_openTelemetryResourceAttributes);
 
         //initialize the ActivitySource
         if (_openTelemetryResourceAttributes.Count != 0
@@ -53,7 +51,7 @@ public class AppInstrumentation : IDisposable
         }
         else
         {
-            _logger.LogWarning("Required Open Telemetry Resource Attributes were not found (attributes=[service.name,service.version]). Using default values.");
+            Log.Warning("Required Open Telemetry Resource Attributes were not found (attributes=[service.name,service.version]). Using default values.");
             ActivitySource = new ActivitySource(name: DEFAULT_SERVICE_NAME,
                                                 version: DEFAULT_SERVICE_VERSION);
             _meter = new Meter(name: DEFAULT_SERVICE_NAME,
@@ -65,7 +63,7 @@ public class AppInstrumentation : IDisposable
         InitializeCustomMetrics();
 
         //log initialization
-        _logger.LogInformation("AppInstrumentation initialized.");
+        Log.Information("AppInstrumentation initialized.");
     }
 
     #endregion Constructors
@@ -81,43 +79,12 @@ public class AppInstrumentation : IDisposable
         _meter.Dispose();
 
         //log disposal
-        _logger.LogInformation("AppInstrumentation disposed.");
+        Log.Information("AppInstrumentation disposed.");
     }
 
     #endregion Public Functions
 
     #region Private Functions
-
-    /// <summary>
-    /// Gets the necessary OpenTelemetry resource attributes to construct an ActivitySource object from the environment variables.
-    /// </summary>
-    private void GetOpenTelemetryResourceAttributesFromEnvironment()
-    {
-        var openTelemetryResourceAttributesString = Environment.GetEnvironmentVariable("OTEL_RESOURCE_ATTRIBUTES");
-        if (string.IsNullOrWhiteSpace(openTelemetryResourceAttributesString))
-        {
-            _logger.LogWarning("OTEL_RESOURCE_ATTRIBUTES environment variable is not set.");
-            return;
-        }
-
-        //split on comma to get key value pairs
-        var keyValuePairs = openTelemetryResourceAttributesString.Split(',');
-
-        //then split on equals to get key and value
-        foreach (var keyValuePair in keyValuePairs)
-        {
-            var keyAndValue = keyValuePair.Split('=');
-            if (keyAndValue.Length != 2)
-            {
-                _logger.LogWarning("Invalid key value pair in OTEL_RESOURCE_ATTRIBUTES environment variable.");
-                continue;
-            }
-            _openTelemetryResourceAttributes.Add(keyAndValue[0], keyAndValue[1]);
-        }
-
-        //initialize the read only dictionary
-        OpenTelemetryResourceAttributes = new ReadOnlyDictionary<string, string>(_openTelemetryResourceAttributes);
-    }
 
     private void InitializeCustomMetrics()
     {

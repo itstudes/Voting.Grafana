@@ -85,7 +85,7 @@ public static class IHostApplicationBuilderExtensions
         //console exporters in dev
         if (builder.Environment.IsDevelopment())
         {
-            builder.Services.Configure<OpenTelemetryLoggerOptions>(options => options.AddConsoleExporter());
+            //builder.Services.Configure<OpenTelemetryLoggerOptions>(options => options.AddConsoleExporter());
             //builder.Services.ConfigureOpenTelemetryMeterProvider(options => options.AddConsoleExporter());
             //builder.Services.ConfigureOpenTelemetryTracerProvider(options => options.AddConsoleExporter());
         }

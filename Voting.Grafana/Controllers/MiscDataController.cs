@@ -6,9 +6,6 @@ namespace Voting.Grafana.Controllers;
 [Route("misc")]
 public class MiscDataController : ControllerBase
 {
-    public MiscDataController(ILogger<MiscDataController> logger)
-    {
-    }
 
     [HttpGet("vote-categories")]
     public IActionResult GetVoteCategories()

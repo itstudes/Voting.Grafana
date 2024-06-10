@@ -6,13 +6,10 @@ namespace Voting.Grafana.Controllers;
 [Route("parties")]
 public class PoliticalPartiesInformationController : ControllerBase
 {
-    private readonly ILogger<PoliticalPartiesInformationController> _logger;
     private readonly RegisteredPartiesService _registeredPartiesService;
 
-    public PoliticalPartiesInformationController(ILogger<PoliticalPartiesInformationController> logger, 
-                                                 RegisteredPartiesService registeredPartiesService)
+    public PoliticalPartiesInformationController(RegisteredPartiesService registeredPartiesService)
     {
-        _logger = logger;
         _registeredPartiesService = registeredPartiesService;
     }
 

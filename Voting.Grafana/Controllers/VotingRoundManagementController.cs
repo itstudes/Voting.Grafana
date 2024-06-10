@@ -7,15 +7,12 @@ namespace Voting.Grafana.Controllers;
 [Route("manage")]
 public class VotingRoundManagementController : ControllerBase
 {
-    private readonly ILogger<VotingRoundManagementController> _logger;
     private readonly VotingRoundManagementService _votingRoundManagementService;
     private readonly ActivitySource _activitySource;
 
-    public VotingRoundManagementController(ILogger<VotingRoundManagementController> logger,
-                                           AppInstrumentation appInstrumentation,
+    public VotingRoundManagementController(AppInstrumentation appInstrumentation,
                                            VotingRoundManagementService votingRoundManagementService)
     {
-        _logger = logger;
         _activitySource = appInstrumentation.ActivitySource;
         _votingRoundManagementService = votingRoundManagementService;
     }
@@ -23,7 +20,7 @@ public class VotingRoundManagementController : ControllerBase
     [HttpGet("status")]
     public IActionResult GetVotingRoundStatus()
     {
-        VotingRoundCurrentStatusWebModel votingRoundStatus = null;
+        VotingRoundCurrentStatusWebModel? votingRoundStatus = null;
         if ( _votingRoundManagementService.CanVote(out var results) )
         {
             votingRoundStatus = new VotingRoundCurrentStatusWebModel
@@ -82,7 +79,7 @@ public class VotingRoundManagementController : ControllerBase
         catch (Exception ex)
         {
             //log the exception
-            _logger.LogError(ex, "An exception occurred while getting voting round statistics.");
+            Log.Error(ex, "An exception occurred while getting voting round statistics.");
 
             //set failure activity status
             activity?.SetStatus(ActivityStatusCode.Error);
@@ -111,7 +108,7 @@ public class VotingRoundManagementController : ControllerBase
         catch ( Exception ex )
         {
             //log the exception
-            _logger.LogError(ex, "An exception occurred while getting voting round archive data.");
+            Log.Error(ex, "An exception occurred while getting voting round archive data.");
 
             //set failure activity status
             activity?.SetStatus(ActivityStatusCode.Error);
@@ -141,7 +138,7 @@ public class VotingRoundManagementController : ControllerBase
         catch ( Exception ex )
         {
             //log the exception
-            _logger.LogError(ex, "An exception occurred while creating a new voting round.");
+            Log.Error(ex, "An exception occurred while creating a new voting round.");
 
             //set failure activity status
             activity?.SetStatus(ActivityStatusCode.Error);
@@ -169,7 +166,7 @@ public class VotingRoundManagementController : ControllerBase
         catch ( Exception ex )
         {
             //log the exception
-            _logger.LogError(ex, "An exception occurred while ending the current voting round.");
+            Log.Error(ex, "An exception occurred while ending the current voting round.");
 
             //set failure activity status
             activity?.SetStatus(ActivityStatusCode.Error);

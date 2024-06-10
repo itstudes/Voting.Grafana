@@ -7,15 +7,12 @@ namespace Voting.Grafana.Controllers;
 [Route("test")]
 public class K6LoadTestController : ControllerBase
 {
-    private readonly ILogger<K6LoadTestController> _logger;
     private readonly K6TestManager _testManager;
     private readonly ActivitySource _activitySource;
 
-    public K6LoadTestController(ILogger<K6LoadTestController> logger,
-                                AppInstrumentation appInstrumentation,
+    public K6LoadTestController(AppInstrumentation appInstrumentation,
                                 K6TestManager testManager)
     {
-        _logger = logger;
         _activitySource = appInstrumentation.ActivitySource;
         _testManager = testManager;
     }
@@ -55,7 +52,7 @@ public class K6LoadTestController : ControllerBase
             activity?.SetStatus(ActivityStatusCode.Error);
 
             //log error
-            _logger.LogError(ex, "An error occurred while trying to start a k6 test.");
+            Log.Error(ex, "An error occurred while trying to start a k6 test.");
 
             //return HTTP 500 error
             var exceptionModel = new InternalExceptionWebModel
@@ -114,7 +111,7 @@ public class K6LoadTestController : ControllerBase
             activity?.SetStatus(ActivityStatusCode.Error);
 
             //log error
-            _logger.LogError(ex, "An error occurred while trying to get the results for a k6 test (testId={testId}).", testId);
+            Log.Error(ex, "An error occurred while trying to get the results for a k6 test (testId={testId}).", testId);
 
             //return HTTP 500 error
             var exceptionModel = new InternalExceptionWebModel

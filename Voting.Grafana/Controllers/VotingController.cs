@@ -6,17 +6,14 @@ namespace Voting.Grafana.Controllers;
 [Route("vote")]
 public class VotingController : ControllerBase
 {
-    private readonly ILogger<VotingRoundManagementController> _logger;
     private readonly AppInstrumentation _appInstrumentation;
     private readonly VotingRoundManagementService _votingRoundManagementService;
     private readonly RegisteredPartiesService _registeredPartiesService;
 
-    public VotingController(ILogger<VotingRoundManagementController> logger,
-                            AppInstrumentation appInstrumentation,
+    public VotingController(AppInstrumentation appInstrumentation,
                             VotingRoundManagementService votingRoundManagementService,
                             RegisteredPartiesService registeredPartiesService)
     {
-        _logger = logger;
         _appInstrumentation = appInstrumentation;
         _votingRoundManagementService = votingRoundManagementService;
         _registeredPartiesService = registeredPartiesService;
@@ -90,6 +87,10 @@ public class VotingController : ControllerBase
         }
         catch ( Exception ex )
         {
+            //log error
+            Log.Error(ex, "An error occurred while trying to vote.");
+
+            //return HTTP 500 error
             var exceptionModel = new InternalExceptionWebModel
             {
                 Code = ex.HResult.ToString(),

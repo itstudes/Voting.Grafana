@@ -12,13 +12,9 @@ public sealed class K6TestManager
     private static bool _isTestRunning = false;
     private static Guid _ongoingTestId = Guid.Empty;
     private static readonly object _singleTestLock = new();
-    private readonly ILogger<K6TestManager> _logger;
 
     public bool IsTestRunning => _isTestRunning;
     public Guid OngoingTestId => _ongoingTestId;
-
-    public K6TestManager(ILogger<K6TestManager> logger) =>
-        _logger = logger;
 
     #region Public Functions
 
@@ -29,8 +25,8 @@ public sealed class K6TestManager
     /// <param name="testId"></param>
     /// <param name="results"></param>
     /// <returns>returns true if the test could be run, otherwise returns false</returns>
-    public bool TryRunK6Test(string scriptName, 
-                             out Guid testId, 
+    public bool TryRunK6Test(string scriptName,
+                             out Guid testId,
                              out string results)
     {
         //init values
@@ -73,9 +69,9 @@ public sealed class K6TestManager
             if (!string.IsNullOrEmpty(args.Data))
             {
                 _testResults.AddOrUpdate(_ongoingTestId, args.Data + Environment.NewLine, (key, existingValue) => existingValue + args.Data + Environment.NewLine);
-                _logger.LogInformation("Test Results for testId={testId}: \n{testResults}", 
-                                       _ongoingTestId, 
-                                       args.Data);
+                Log.Information("Test Results for testId={testId}: \n{testResults}",
+                                _ongoingTestId,
+                                args.Data);
             }
         };
         DataReceivedEventHandler errorHandler = (sender, args) =>
@@ -83,16 +79,16 @@ public sealed class K6TestManager
             if (!string.IsNullOrEmpty(args.Data))
             {
                 _testResults.AddOrUpdate(_ongoingTestId, args.Data + Environment.NewLine, (key, existingValue) => existingValue + args.Data + Environment.NewLine);
-                _logger.LogInformation("Test Results for testId={testId}: \n{testResults}",
-                                       _ongoingTestId,
-                                       args.Data);
+                Log.Information("Test Results for testId={testId}: \n{testResults}",
+                                _ongoingTestId,
+                                args.Data);
             }
         };
         process.OutputDataReceived += outputHandler;
         process.ErrorDataReceived += errorHandler;
         process.Exited += (sender, args) =>
         {
-            _logger.LogInformation("Completed k6 test with test ID (testId={testId})", _ongoingTestId);
+            Log.Information("Completed k6 test with test ID (testId={testId})", _ongoingTestId);
             process.OutputDataReceived -= outputHandler;
             process.ErrorDataReceived -= errorHandler;
             lock (_singleTestLock)
@@ -117,8 +113,8 @@ public sealed class K6TestManager
     /// <param name="testId"></param>
     /// <returns>returns the results as a string or an empty string if no results could be found for the ID</returns>
     public string GetTestResults(Guid testId) =>
-        _testResults.TryGetValue(testId, out var result) ? 
-        result : 
+        _testResults.TryGetValue(testId, out var result) ?
+        result :
         string.Empty;
 
     #endregion Public Functions

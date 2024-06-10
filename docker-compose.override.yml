@@ -34,6 +34,12 @@ services:
       - ./loki:/etc/loki
       - ./loki_data:/loki
     user: "root"
+    healthcheck:
+        test: wget -q --tries=1 -O- http://localhost:3100/ready 
+        interval: 3s
+        timeout: 3s
+        retries: 10
+        start_period: 10s
 
   promtail:
     image: grafana/promtail:2.8.0
@@ -49,16 +55,20 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://*:8080
+      - "OTEL_RESOURCE_ATTRIBUTES=service.name=voting-grafana-api,service.namespace=Voting.Grafana,service.version=1.0,host.name=`HOSTNAME`"
       #- ASPNETCORE_HTTP_PORTS=8080
       #- ASPNETCORE_HTTPS_PORTS=8081
     ports:
       - "8080:8080"
       #- "8080"
       #- "8081"
+    depends_on:
+      loki:
+        condition: service_healthy
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - /var/run/docker.sock:/var/run/docker.sock
+      # - /var/run/docker.sock:/var/run/docker.sock
 
   k6:
     image: loadimpact/k6:latest
