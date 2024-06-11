@@ -27,17 +27,17 @@ public class VotingController : ControllerBase
         {
             //checks
             //valid ID
-            if ( string.IsNullOrEmpty(voteRequest.VoterIdNumber) )
+            if (string.IsNullOrEmpty(voteRequest.VoterIdNumber))
             {
                 return BadRequest("Voter ID number is required.");
             }
             //voting data
-            if ( voteRequest.VotingIntentions is null || (voteRequest.VotingIntentions is not null && voteRequest.VotingIntentions.Count == 0) )
+            if (voteRequest.VotingIntentions is null || (voteRequest.VotingIntentions is not null && voteRequest.VotingIntentions.Count == 0))
             {
                 return BadRequest("Voting intentions are required to make a vote.");
             }
             //check if voting is open
-            if ( !_votingRoundManagementService.CanVote(out var canVoteResults) )
+            if (!_votingRoundManagementService.CanVote(out var canVoteResults))
             {
                 return BadRequest(canVoteResults);
             }
@@ -53,9 +53,9 @@ public class VotingController : ControllerBase
                                                            partyForecasts);
 
             //final checks on if the vote is valid / can be submitted
-            foreach ( var submission in submissions )
+            foreach (var submission in submissions)
             {
-                if ( !_votingRoundManagementService.IsVoteValidForRound(submission, out var areSubmissionsValidResults) )
+                if (!_votingRoundManagementService.IsVoteValidForRound(submission, out var areSubmissionsValidResults))
                 {
                     return BadRequest(areSubmissionsValidResults);
                 }
@@ -65,7 +65,7 @@ public class VotingController : ControllerBase
             Thread.Sleep(finalTimeToVote_ms);
 
             //submit the votes
-            foreach ( var submission in submissions )
+            foreach (var submission in submissions)
             {
                 _votingRoundManagementService.SubmitVote(submission);
             }
@@ -85,7 +85,7 @@ public class VotingController : ControllerBase
 
             return Ok(voteReturnData);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             //log error
             Log.Error(ex, "An error occurred while trying to vote.");

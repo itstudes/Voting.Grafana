@@ -19,7 +19,7 @@ public class Program
                            .Enrich.WithProperty("ServiceName", serviceName ?? "UnknownService")
                            .Enrich.WithProperty("ServiceVersion", serviceVersion ?? "UnknownVersion")
                            .WriteTo.Console()
-                           .WriteTo.GrafanaLoki(uri: "http://loki:3100", 
+                           .WriteTo.GrafanaLoki(uri: "http://loki:3100",
                                                 labels:
                                                 [
                                                     new() { Key="ServiceName", Value= serviceName ?? "UnknownService" },
@@ -39,7 +39,7 @@ public class Program
             builder.Services.AddSingleton<AppInstrumentation>();
 
             //add open telemetry
-            builder.ConfigureOpenTelemetry();            
+            builder.ConfigureOpenTelemetry();
 
             //add voting services
             builder.Services.AddSingleton<RegisteredPartiesService>();
@@ -87,6 +87,6 @@ public class Program
         finally
         {
             await Log.CloseAndFlushAsync();
-        }       
+        }
     }
 }

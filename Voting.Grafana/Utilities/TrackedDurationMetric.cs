@@ -8,7 +8,7 @@ public class TrackedDurationMetric : IDisposable
     private readonly long _startTimestamp;
     private readonly Histogram<double> _histogram;
 
-    public TrackedDurationMetric(Histogram<double> histogram, 
+    public TrackedDurationMetric(Histogram<double> histogram,
                                  long? optionalStartTimestamp = null)
     {
         _histogram = histogram;

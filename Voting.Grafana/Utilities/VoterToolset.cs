@@ -37,12 +37,12 @@ public static class VoterToolset
     public static bool CheckIfIdIsValid(string voterId)
     {
         //check if the id number is 13 digits long
-        if ( voterId.Length != 13 )
+        if (voterId.Length != 13)
         {
             return false;
         }
         //check if the id only contains numbers
-        if ( !voterId.All(char.IsDigit) )
+        if (!voterId.All(char.IsDigit))
         {
             return false;
         }
@@ -70,28 +70,28 @@ public static class VoterToolset
         var randomScalingFactor = random.NextDouble() * 0.1;
 
         //iterate through the vote intentions for each category and create a vote submission for each
-        foreach ( var intentionsForCategories in request.VotingIntentions )
+        foreach (var intentionsForCategories in request.VotingIntentions)
         {
             //iterate through all the parties the voter is considering and choose one
             // - base the choice on the forecast if available (if the voter is undecided)
             // - base the choice on the voter's intention too
             double selectedPartyConfidencePercentage = 0;
             string selectedPartyCode = string.Empty;
-            foreach ( var intention in intentionsForCategories.Intentions )
+            foreach (var intention in intentionsForCategories.Intentions)
             {
                 //get the forecast for the party
                 var forecast = forecastsForApplicableParties?.FirstOrDefault(f => f.PartyCode == intention.PartyCode);
-                
+
 
                 //if there is a forecast, use the multiple of that and the voter's intention to get the confidence percentage
                 var currentPartyConfidencePercentage = randomScalingFactor * intention.IntentionPercentage;
-                if ( forecast != null )
+                if (forecast != null)
                 {
                     currentPartyConfidencePercentage = randomScalingFactor * (forecast.ForecastPercentage / 100) * intention.IntentionPercentage;
                 }
 
                 //if the current party has a higher confidence percentage, select it
-                if ( currentPartyConfidencePercentage > selectedPartyConfidencePercentage )
+                if (currentPartyConfidencePercentage > selectedPartyConfidencePercentage)
                 {
                     selectedPartyConfidencePercentage = currentPartyConfidencePercentage;
                     selectedPartyCode = intention.PartyCode;
@@ -105,7 +105,7 @@ public static class VoterToolset
                 VoterIdNumber = request.VoterIdNumber,
                 PoliticalPartyCode = selectedPartyCode,
                 Category = intentionsForCategories.Category
-            });           
+            });
         }
 
         //add the time to vote

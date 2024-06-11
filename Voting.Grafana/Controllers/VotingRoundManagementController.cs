@@ -21,7 +21,7 @@ public class VotingRoundManagementController : ControllerBase
     public IActionResult GetVotingRoundStatus()
     {
         VotingRoundCurrentStatusWebModel? votingRoundStatus = null;
-        if ( _votingRoundManagementService.CanVote(out var results) )
+        if (_votingRoundManagementService.CanVote(out var results))
         {
             votingRoundStatus = new VotingRoundCurrentStatusWebModel
             {
@@ -83,7 +83,7 @@ public class VotingRoundManagementController : ControllerBase
 
             //set failure activity status
             activity?.SetStatus(ActivityStatusCode.Error);
-         
+
             //return HTTP 500 error
             var exceptionModel = new InternalExceptionWebModel
             {
@@ -105,21 +105,21 @@ public class VotingRoundManagementController : ControllerBase
             activity?.SetStatus(ActivityStatusCode.Ok);
             return Ok(archiveData);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             //log the exception
             Log.Error(ex, "An exception occurred while getting voting round archive data.");
 
             //set failure activity status
             activity?.SetStatus(ActivityStatusCode.Error);
-         
+
             //return HTTP 500 error
             var exceptionModel = new InternalExceptionWebModel
             {
                 Code = ex.HResult.ToString(),
                 ExceptionType = ex.GetType().Name,
                 Message = ex.Message
-            };            
+            };
             return StatusCode(StatusCodes.Status500InternalServerError, exceptionModel);
         }
     }
@@ -135,7 +135,7 @@ public class VotingRoundManagementController : ControllerBase
                                                                               newVotingRound.ExpectedNumberOfVoters);
             return Ok(newRoundData);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             //log the exception
             Log.Error(ex, "An exception occurred while creating a new voting round.");
@@ -149,7 +149,7 @@ public class VotingRoundManagementController : ControllerBase
                 Code = ex.HResult.ToString(),
                 ExceptionType = ex.GetType().Name,
                 Message = ex.Message
-            };            
+            };
             return StatusCode(StatusCodes.Status500InternalServerError, exceptionModel);
         }
     }
@@ -163,7 +163,7 @@ public class VotingRoundManagementController : ControllerBase
             var returnData = _votingRoundManagementService.EndCurrentVotingRound();
             return Ok(returnData);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             //log the exception
             Log.Error(ex, "An exception occurred while ending the current voting round.");

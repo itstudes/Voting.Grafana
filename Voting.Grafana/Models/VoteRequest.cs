@@ -18,9 +18,9 @@ public sealed class VoteRequest
     public List<string> GetPartyCodesVoterIsConsidering()
     {
         List<string> partyCodes = new List<string>();
-        foreach ( var intentions in VotingIntentions.Select(vifvc => vifvc.Intentions) )
+        foreach (var intentions in VotingIntentions.Select(vifvc => vifvc.Intentions))
         {
-            foreach ( var intention in intentions )
+            foreach (var intention in intentions)
             {
                 partyCodes.Add(intention.PartyCode);
             }

@@ -45,7 +45,7 @@ public class AppInstrumentation : IDisposable
         {
             ActivitySource = new ActivitySource(name: serviceName,
                                                 version: serviceVersion);
-            _meter = new Meter(name: serviceName, 
+            _meter = new Meter(name: serviceName,
                                version: serviceVersion);
             MeterName = _meter.Name;
         }

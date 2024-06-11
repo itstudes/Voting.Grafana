@@ -7,7 +7,7 @@ public sealed class PoliticalParty
 {
     #region Properties
     public string Code { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;    
+    public string Name { get; set; } = string.Empty;
 
     #endregion Properties
 }
