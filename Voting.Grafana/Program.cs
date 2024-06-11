@@ -33,7 +33,8 @@ public class Program
 
             //configure the app to use serilog
             builder.Services.AddSerilog();
-            Serilog.Debugging.SelfLog.Enable(msg => Console.WriteLine(msg));
+            //Uncomment the following line to enable Serilog debug logging
+            //Serilog.Debugging.SelfLog.Enable(msg => Console.WriteLine(msg));
 
             //add diagnostic instrumentation for app (for open telemetry)
             builder.Services.AddSingleton<AppInstrumentation>();

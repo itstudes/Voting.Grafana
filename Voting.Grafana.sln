@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DockerComposeConfigFiles", 
 		loki\loki-config.yaml = loki\loki-config.yaml
 		prometheus\prometheus-config.yml = prometheus\prometheus-config.yml
 		promtail\promtail-config.yaml = promtail\promtail-config.yaml
+		tempo\tempo-config.yaml = tempo\tempo-config.yaml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "k6Tests", "k6Tests", "{1246A995-1AB7-4BB0-89BB-431FE99DD514}"

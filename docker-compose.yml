@@ -1,6 +1,7 @@
 version: '3.4'
 
 services:
+  #OTLP metrics injested through Prometheus
   prometheus:
     image: prom/prometheus:latest
     depends_on:
@@ -12,19 +13,19 @@ services:
     command:
       - "--config.file=/etc/prometheus/prometheus-config.yml"
 
-  grafana:
-    image: grafana/grafana:latest
-    depends_on: 
-      - prometheus
-      - loki
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+  #OTLP traces injested through Tempo
+  tempo:
+    image: grafana/tempo:latest
+    command: [ "-config.file=/etc/tempo/tempo-config.yaml" ]
     volumes:
-      - ./grafana:/var/lib/grafana
+      - ./tempo:/etc/tempo
+      - ./tempo-data:/tmp/tempo
+    ports:
+      - "3200:3200"  # Tempo
+      - "4317:4317"  # OTLP gRPC
+      - "4318:4318"  # OTLP HTTP
 
+  #OTLP logs injested through Loki
   loki:
     image: grafana/loki:2.8.0
     ports:
@@ -41,6 +42,7 @@ services:
         retries: 10
         start_period: 10s
 
+  #Promtail agent to scrape other logs and send to Loki
   promtail:
     image: grafana/promtail:2.8.0
     depends_on:
@@ -49,8 +51,23 @@ services:
       - -config.file=/etc/promtail/promtail-config.yaml
     volumes:
       - ./promtail:/etc/promtail
-      - /var/log:/var/log
+      - /var/log:/var/log 
 
+  #Metrics, logs and trace data displayed in Grafana
+  grafana:
+    image: grafana/grafana:latest
+    depends_on: 
+      - prometheus
+      - loki
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana:/var/lib/grafana
+
+  #Voting API service
   voting-api-01:
     image: ${DOCKER_REGISTRY-}votinggrafana
     build:
@@ -74,6 +91,8 @@ services:
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       # - /var/run/docker.sock:/var/run/docker.sock
 
+
+  #Load testing with k6
   k6:
     image: loadimpact/k6:latest
     volumes:

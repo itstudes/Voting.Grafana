@@ -73,14 +73,31 @@ public static class IHostApplicationBuilderExtensions
     /// <returns>returns the updated IHostApplicationBuilder object</returns>
     private static IHostApplicationBuilder AddOpenTelemetryExporters(this IHostApplicationBuilder builder)
     {
+        //get appSettings.json configuration
+        var configuration = builder.Configuration;
+
+        //prometheus exporter for metrics
+        builder.Services.AddOpenTelemetry()
+                        .WithMetrics(m => m.AddPrometheusExporter());
+
+        //standard OTLP exporter for tracing
+        //- configured to point to tempo instance
+        var otlpEndpoint = configuration.GetValue<string>("OpenTelemetry:Exporters:TracingExporter") ?? 
+                           "http://localhost:4317";
+        builder.Services.AddOpenTelemetry()
+                        .WithTracing(t => t.AddOtlpExporter(options =>
+                        {
+                            options.Endpoint = new Uri(otlpEndpoint);
+                        }));
+
         //OTLP exporter if defined in env variables
-        var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
-        if (useOtlpExporter)
-        {
-            builder.Services.Configure<OpenTelemetryLoggerOptions>(options => options.AddOtlpExporter());
-            builder.Services.ConfigureOpenTelemetryMeterProvider(options => options.AddOtlpExporter());
-            builder.Services.ConfigureOpenTelemetryTracerProvider(options => options.AddOtlpExporter());
-        }
+        //var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
+        //if (useOtlpExporter)
+        //{
+        //    builder.Services.Configure<OpenTelemetryLoggerOptions>(options => options.AddOtlpExporter());
+        //    builder.Services.ConfigureOpenTelemetryMeterProvider(options => options.AddOtlpExporter());
+        //    builder.Services.ConfigureOpenTelemetryTracerProvider(options => options.AddOtlpExporter());
+        //}
 
         //console exporters in dev
         //if (builder.Environment.IsDevelopment())
@@ -89,17 +106,6 @@ public static class IHostApplicationBuilderExtensions
         //    builder.Services.ConfigureOpenTelemetryMeterProvider(options => options.AddConsoleExporter());
         //    builder.Services.ConfigureOpenTelemetryTracerProvider(options => options.AddConsoleExporter());
         //}
-
-        //prometheus exporter for metrics
-        builder.Services.AddOpenTelemetry()
-                        .WithMetrics(m => m.AddPrometheusExporter());
-
-        //jaeger exporter for tracing
-        //builder.Services.AddOpenTelemetry()
-        //                .WithTracing(t => t.AddOtlpExporter(options =>
-        //                {
-        //                    options.
-        //                }));
 
         return builder;
     }
