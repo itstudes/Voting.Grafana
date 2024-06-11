@@ -5,4 +5,4 @@ scrape_configs:
   - job_name: 'api'
     metrics_path: '/metrics'
     static_configs:
-      - targets: ['voting.grafana:8080']
+      - targets: ['voting-api-01:8080', 'voting-api-02:8081']

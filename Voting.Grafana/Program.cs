@@ -1,5 +1,3 @@
-using Serilog.Formatting.Compact;
-using Serilog.Formatting.Json;
 using Serilog.Sinks.Grafana.Loki;
 
 namespace Voting.Grafana;

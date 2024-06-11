@@ -94,6 +94,13 @@ public static class IHostApplicationBuilderExtensions
         builder.Services.AddOpenTelemetry()
                         .WithMetrics(m => m.AddPrometheusExporter());
 
+        //jaeger exporter for tracing
+        //builder.Services.AddOpenTelemetry()
+        //                .WithTracing(t => t.AddOtlpExporter(options =>
+        //                {
+        //                    options.
+        //                }));
+
         return builder;
     }
 
