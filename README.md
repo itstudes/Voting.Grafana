@@ -1,10 +1,16 @@
 ﻿# South African Voting Grafana Demo Project 🇿🇦
 This project provides a basic API that mimics the South African voting system. It is used to demonstrate how to utilize the Grafana Labs ecosystem.
+
 🗒️ Logs are sent to Loki (along with Promtail)
+
 📈 Metrics are sent to Prometheus
+
 🔎 Traces are sent to Tempo
+
 🖥️ Dashboards are created in Grafana
+
 ✅ Testing is done with k6
+
 
 ## Getting Started
 ### Prerequisites

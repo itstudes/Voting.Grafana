@@ -44,7 +44,7 @@ public class AppCustomInstrumentation : AppProcessInstrumentation
     public TrackedDurationMetric MeasureVoteDuration_ms() =>
         new(VoteDuration_ms);
 
-    public void Dispose()
+    public override void Dispose()
     {
         //log disposal
         Log.Information("Custom application instrumentation disposed.");

@@ -9,3 +9,5 @@
 /obj
 /loki_data
 /tempo-data
+/Voting.VoterInfo.Api/obj
+/Voting.VoterInfo.Api/bin/Debug/net8.0

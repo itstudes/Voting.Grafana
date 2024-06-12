@@ -89,9 +89,6 @@ public abstract class OpenTelemetryInstrumentationBase : IDisposable
     {
         ActivitySource.Dispose();
         _meter.Dispose();
-
-        //log disposal
-        Log.Information("Open Telemetry instrumentation object disposed.");
     }
 
     #endregion Public Methods

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Voting.Grafana.Services.OpenTelemetry;
 
 namespace Voting.Grafana.Controllers;
 
