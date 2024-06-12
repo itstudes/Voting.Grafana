@@ -47,7 +47,7 @@ function getRandomParties(forecasts, num) {
 }
 
 function determineBaseURL() {
-    return Math.random() < 0.5 ? baseURL1 : baseURL2;
+    return Math.random() < 0.3 ? baseURL1 : baseURL2;
 }
 
 export default function () {

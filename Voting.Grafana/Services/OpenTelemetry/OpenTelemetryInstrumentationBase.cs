@@ -2,35 +2,41 @@
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 
-namespace Voting.Grafana.Utilities;
+namespace Voting.Grafana.Services.OpenTelemetry;
 
 /// <summary>
-/// Stores the necessary OpenTelemetry resources and provides an ActivitySource object for the application.
+/// A base class for OpenTelemetry instrumentation services.
 /// </summary>
-public class AppInstrumentation : IDisposable
+public abstract class OpenTelemetryInstrumentationBase : IDisposable
 {
     private const string DEFAULT_SERVICE_NAME = "unspecified-service";
     private const string DEFAULT_SERVICE_VERSION = "unspecified-version";
 
-    private const string VOTES_TOTAL_METRIC_NAME = "votes.total";
-    private const string VOTES_DURATION_METRIC_NAME = "votes.duration";
-
-    private readonly Meter _meter;
+    protected readonly Meter _meter;
     private Dictionary<string, string> _openTelemetryResourceAttributes = new();
 
     #region Properties
 
+    /// <summary>
+    /// Stores the ActivitySource object for the application.
+    /// </summary>
     public ActivitySource ActivitySource { get; private set; }
+
+    /// <summary>
+    /// A read-only dictionary of OpenTelemetry resource attributes from the OTEL_RESOURCE_ATTRIBUTES environment/appSettings variable.
+    /// </summary>
     public ReadOnlyDictionary<string, string> OpenTelemetryResourceAttributes { get; private set; }
+
+    /// <summary>
+    /// The name of the meter used for the metrics.
+    /// </summary>
     public string MeterName { get; private set; }
-    public Counter<long> VotesTotalCounter { get; private set; }
-    public Histogram<double> VoteDuration_ms { get; private set; }
 
     #endregion Properties
 
     #region Constructors
 
-    public AppInstrumentation()
+    public OpenTelemetryInstrumentationBase()
     {
         //set the resource attributes
         _openTelemetryResourceAttributes = OpenTelemetryUtilities.GetOpenTelemetryResourceAttributesFromEnvironment();
@@ -58,46 +64,35 @@ public class AppInstrumentation : IDisposable
                                version: DEFAULT_SERVICE_VERSION);
             MeterName = _meter.Name;
         }
+    }
 
-        //initialise custom metrics
-        InitializeCustomMetrics();
+    public OpenTelemetryInstrumentationBase(string serviceName, 
+                                            string? serviceVersion = null)
+    {
+        //set meter and activity data
+        ActivitySource = new ActivitySource(name: serviceName,
+                                            version: serviceVersion);
+        _meter = new Meter(name: serviceName,
+                           version: serviceVersion);
+        MeterName = _meter.Name;
 
-        //log initialization
-        Log.Information("AppInstrumentation initialized.");
+        //try get otel variables and set the attributes 
+        _openTelemetryResourceAttributes = OpenTelemetryUtilities.GetOpenTelemetryResourceAttributesFromEnvironment();
+        OpenTelemetryResourceAttributes = new ReadOnlyDictionary<string, string>(_openTelemetryResourceAttributes);
     }
 
     #endregion Constructors
 
-    #region Public Functions
+    #region Public Methods
 
-    public TrackedDurationMetric MeasureVoteDuration_ms() =>
-        new(VoteDuration_ms);
-
-    public void Dispose()
+    public virtual void Dispose()
     {
         ActivitySource.Dispose();
         _meter.Dispose();
 
         //log disposal
-        Log.Information("AppInstrumentation disposed.");
+        Log.Information("Open Telemetry instrumentation object disposed.");
     }
 
-    #endregion Public Functions
-
-    #region Private Functions
-
-    private void InitializeCustomMetrics()
-    {
-        //counters
-        VotesTotalCounter = _meter.CreateCounter<long>(name: VOTES_TOTAL_METRIC_NAME,
-                                                       description: "Total number of votes cast");
-
-        //histograms
-        VoteDuration_ms = _meter.CreateHistogram<double>(name: VOTES_DURATION_METRIC_NAME,
-                                                         description: "Duration of time taken to vote in milliseconds",
-                                                         unit: "ms");
-    }
-
-    #endregion Private Functions
-
+    #endregion Public Methods
 }

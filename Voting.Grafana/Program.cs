@@ -36,8 +36,11 @@ public class Program
             //Uncomment the following line to enable Serilog debug logging
             //Serilog.Debugging.SelfLog.Enable(msg => Console.WriteLine(msg));
 
-            //add diagnostic instrumentation for app (for open telemetry)
-            builder.Services.AddSingleton<AppInstrumentation>();
+            //add instrumentation for app (open telemetry)
+            //- extended host instrumentation
+            builder.Services.AddSingleton(serviceProvider => new ExtendedHostInstrumentation(serviceName: "host.extended"));
+            //- custom app instrumentation
+            builder.Services.AddSingleton<AppCustomInstrumentation>();
 
             //add open telemetry
             builder.ConfigureOpenTelemetry();

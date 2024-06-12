@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Voting.Grafana.Services.OpenTelemetry;
 
 namespace Voting.Grafana.Controllers;
 
@@ -6,11 +7,11 @@ namespace Voting.Grafana.Controllers;
 [Route("vote")]
 public class VotingController : ControllerBase
 {
-    private readonly AppInstrumentation _appInstrumentation;
+    private readonly AppCustomInstrumentation _appInstrumentation;
     private readonly VotingRoundManagementService _votingRoundManagementService;
     private readonly RegisteredPartiesService _registeredPartiesService;
 
-    public VotingController(AppInstrumentation appInstrumentation,
+    public VotingController(AppCustomInstrumentation appInstrumentation,
                             VotingRoundManagementService votingRoundManagementService,
                             RegisteredPartiesService registeredPartiesService)
     {

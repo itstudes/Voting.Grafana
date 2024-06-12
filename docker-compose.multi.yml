@@ -62,7 +62,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://*:8080
-      - OTEL_RESOURCE_ATTRIBUTES=service.name=voting-grafana-api-01,service.namespace=Voting.Grafana,service.version=1.0,host.name=`HOSTNAME`
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=voting-grafana-api-01,service.version=1.0
     ports:
       - "8080:8080"
     depends_on:
@@ -80,7 +80,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://*:8081
-      - OTEL_RESOURCE_ATTRIBUTES=service.name=voting-grafana-api-02,service.namespace=Voting.Grafana,service.version=1.0,host.name=`HOSTNAME`
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=voting-grafana-api-02,service.version=1.0
     ports:
       - "8081:8081"
     depends_on:

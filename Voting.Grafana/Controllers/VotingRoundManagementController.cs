@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using Voting.Grafana.Services.OpenTelemetry;
 
 namespace Voting.Grafana.Controllers;
 
@@ -10,7 +11,7 @@ public class VotingRoundManagementController : ControllerBase
     private readonly VotingRoundManagementService _votingRoundManagementService;
     private readonly ActivitySource _activitySource;
 
-    public VotingRoundManagementController(AppInstrumentation appInstrumentation,
+    public VotingRoundManagementController(AppCustomInstrumentation appInstrumentation,
                                            VotingRoundManagementService votingRoundManagementService)
     {
         _activitySource = appInstrumentation.ActivitySource;

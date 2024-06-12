@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using Voting.Grafana.Services.OpenTelemetry;
 
 namespace Voting.Grafana.Controllers;
 
@@ -10,7 +11,7 @@ public class K6LoadTestController : ControllerBase
     private readonly K6TestManager _testManager;
     private readonly ActivitySource _activitySource;
 
-    public K6LoadTestController(AppInstrumentation appInstrumentation,
+    public K6LoadTestController(AppCustomInstrumentation appInstrumentation,
                                 K6TestManager testManager)
     {
         _activitySource = appInstrumentation.ActivitySource;

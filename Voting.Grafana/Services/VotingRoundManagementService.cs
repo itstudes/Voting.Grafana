@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
+using Voting.Grafana.Services.OpenTelemetry;
 
 namespace Voting.Grafana.Services;
 
@@ -32,7 +33,7 @@ public class VotingRoundManagementService
     #region Constructors
 
     public VotingRoundManagementService(RegisteredPartiesService registeredPartiesService,
-                                        AppInstrumentation appInstrumentation)
+                                        AppCustomInstrumentation appInstrumentation)
     {
         _registeredPartiesService = registeredPartiesService;
 

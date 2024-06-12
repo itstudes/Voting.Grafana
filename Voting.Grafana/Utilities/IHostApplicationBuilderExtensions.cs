@@ -1,6 +1,7 @@
 ﻿using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+using Voting.Grafana.Services.OpenTelemetry;
 
 namespace Voting.Grafana.Utilities;
 
@@ -18,8 +19,12 @@ public static class IHostApplicationBuilderExtensions
     /// <returns>returns the updated IHostApplicationBuilder object</returns>
     public static IHostApplicationBuilder ConfigureOpenTelemetry(this IHostApplicationBuilder builder)
     {
-        //get AppInstrumentation service
-        var appInstrumentation = builder.Services.BuildServiceProvider().GetRequiredService<AppInstrumentation>();
+        //get AppCustomInstrumentation service
+        var extendedHostInstrumention = builder.Services.BuildServiceProvider()
+                                                        .GetService<ExtendedHostInstrumentation>();
+        var appInstrumentation = builder.Services.BuildServiceProvider()
+                                                 .GetRequiredService<AppCustomInstrumentation>();
+
 
         //logging
         builder.Logging.AddOpenTelemetry(options =>
@@ -37,8 +42,16 @@ public static class IHostApplicationBuilderExtensions
                        .AddAspNetCoreInstrumentation()
                        .AddHttpClientInstrumentation();
 
+                //add extended host instrumentation
+                if(extendedHostInstrumention is not null)
+                {
+                    //add custom metrics
+                    options.AddMeter(extendedHostInstrumention.MeterName);
+                }
+
                 //add custom metering
                 options.AddMeter(appInstrumentation.MeterName);
+
             })
             .WithTracing(options =>
             {
@@ -82,7 +95,7 @@ public static class IHostApplicationBuilderExtensions
 
         //standard OTLP exporter for tracing
         //- configured to point to tempo instance
-        var otlpEndpoint = configuration.GetValue<string>("OpenTelemetry:Exporters:TracingExporter") ?? 
+        var otlpEndpoint = configuration.GetValue<string>("OpenTelemetry:Exporters:TracingExporter") ??
                            "http://localhost:4317";
         builder.Services.AddOpenTelemetry()
                         .WithTracing(t => t.AddOtlpExporter(options =>

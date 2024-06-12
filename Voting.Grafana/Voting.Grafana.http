@@ -1,6 +1,0 @@
-@Voting.Grafana_HostAddress = http://localhost:5143
-
-GET {{Voting.Grafana_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
