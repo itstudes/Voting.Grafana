@@ -3,6 +3,7 @@ version: '3.4'
 # TO TEST RUN: docker-compose -f docker-compose.yml -f docker-compose.multi.yml up --build
 
 services:
+  #OTLP metrics injested through Prometheus
   prometheus:
     image: prom/prometheus:latest
     depends_on:
@@ -15,6 +16,7 @@ services:
     command:
       - "--config.file=/etc/prometheus/prometheus-config.yml"
 
+  #Metrics, logs and trace data displayed in Grafana
   grafana:
     image: grafana/grafana:latest
     depends_on: 
@@ -28,6 +30,7 @@ services:
     volumes:
       - ./grafana:/var/lib/grafana
 
+  #OTLP logs injested through Loki
   loki:
     image: grafana/loki:2.8.0
     ports:
@@ -44,6 +47,19 @@ services:
         retries: 10
         start_period: 10s
 
+  #OTLP traces injested through Tempo
+  tempo:
+    image: grafana/tempo:latest
+    command: [ "-config.file=/etc/tempo/tempo-config.yaml" ]
+    volumes:
+      - ./tempo:/etc/tempo
+      - ./tempo-data:/tmp/tempo
+    ports:
+      - "3200:3200"  # Tempo
+      - "4317:4317"  # OTLP gRPC
+      - "4318:4318"  # OTLP HTTP
+
+  #Promtail agent to scrape other logs and send to Loki
   promtail:
     image: grafana/promtail:2.8.0
     depends_on:
@@ -54,6 +70,7 @@ services:
       - ./promtail:/etc/promtail
       - /var/log:/var/log
 
+  #Voting API service [API 01]
   voting-api-01:
     image: ${DOCKER_REGISTRY-}votinggrafana
     build:
@@ -72,6 +89,7 @@ services:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
  
+  #Voting API service [API 02]
   voting-api-02:
     image: ${DOCKER_REGISTRY-}votinggrafana
     build:
@@ -90,6 +108,23 @@ services:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
 
+  #Voter Info API service
+  voting-info-api-01:
+    image: ${DOCKER_REGISTRY-}votingvoterinfoapi
+    build:
+      context: .
+      dockerfile: Voting.VoterInfo.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://*:8090
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=voter-info-api-01,service.version=1.0
+    ports:
+      - "8090:8090"
+    depends_on:
+      loki:
+        condition: service_healthy
+
+  #Load testing with k6
   k6:
     image: loadimpact/k6:latest
     volumes:

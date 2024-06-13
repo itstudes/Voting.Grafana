@@ -91,6 +91,21 @@ services:
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       # - /var/run/docker.sock:/var/run/docker.sock
 
+  #Voter Info API service
+  voting-info-api-01:
+    image: ${DOCKER_REGISTRY-}votingvoterinfoapi
+    build:
+      context: .
+      dockerfile: Voting.VoterInfo.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://*:8090
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=voter-info-api-01,service.version=1.0
+    ports:
+      - "8090:8090"
+    depends_on:
+      loki:
+        condition: service_healthy
 
   #Load testing with k6
   k6:
@@ -102,3 +117,4 @@ services:
       - voting-api-01
     depends_on:
       - voting-api-01
+

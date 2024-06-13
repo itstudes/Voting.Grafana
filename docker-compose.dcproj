@@ -4,7 +4,7 @@
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
     <DockerPublishLocally>False</DockerPublishLocally>
-    <ProjectGuid>782e2dd5-e2c3-4221-8ff7-a64a9a061cb7</ProjectGuid>
+    <ProjectGuid>c254decf-d2e0-43d4-82c6-cbda7453617c</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/swagger</DockerServiceUrl>
     <DockerServiceName>voting.grafana</DockerServiceName>

@@ -4,7 +4,8 @@
       "commandName": "DockerCompose",
       "commandVersion": "1.0",
       "serviceActions": {
-        "voting.grafana": "StartDebugging"
+        "voting.grafana": "StartDebugging",
+        "voting.voterinfo.api": "StartDebugging"
       }
     }
   }
